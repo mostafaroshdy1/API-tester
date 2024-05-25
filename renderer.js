@@ -1,11 +1,11 @@
 const methodSelect = document.getElementById("methodSelect");
 const endpointInput = document.getElementById("endpointInput");
-const tokenTypeSelect = document.getElementById("tokenTypeSelect");
-const tokenInput = document.getElementById("tokenInput");
 const sendRequestBtn = document.getElementById("sendRequestBtn");
 const responseContainer = document.getElementById("responseContainer");
 const addKeyValuePairBtn = document.getElementById("addKeyValuePairBtn");
 const keyValuePairsContainer = document.getElementById("keyValuePairs");
+const addHeaderPairBtn = document.getElementById("addHeaderPairBtn");
+const headerPairsContainer = document.getElementById("headerPairs");
 
 let data = {};
 
@@ -23,21 +23,29 @@ addKeyValuePairBtn.addEventListener("click", () => {
   addKeyValuePair();
 });
 
-sendRequestBtn.addEventListener("click", async () => {
+addHeaderPairBtn.addEventListener("click", () => {
+  addHeaderPair();
+});
+
+sendRequestBtn.addEventListener("click", async (event) => {
+  event.preventDefault(); // Prevent form submission default behavior
   const method = methodSelect.value;
   const endpoint = endpointInput.value;
-  const tokenType = tokenTypeSelect.value;
-  const token = tokenInput.value;
 
   const headers = {
-    "Content-Type": "application/json",
+    "Content-Type": "application/json", // Assuming JSON data
   };
 
-  if (tokenType === "x-api-key") {
-    if (token.trim() !== "") {
-      headers[tokenType] = token;
+  // Add user-defined headers
+  const headerInputs = document.querySelectorAll(".header-key-input");
+  const headerValues = document.querySelectorAll(".header-value-input");
+  headerInputs.forEach((headerInput, index) => {
+    const key = headerInput.value.trim();
+    const value = headerValues[index].value.trim();
+    if (key !== "" && value !== "") {
+      headers[key] = value;
     }
-  }
+  });
 
   let options = {
     method,
@@ -79,17 +87,26 @@ function displayResponse(responseData) {
 
 function addKeyValuePair() {
   const keyValuePair = document.createElement("div");
-  keyValuePair.classList.add("mb-3");
+  keyValuePair.classList.add("input-group");
   keyValuePair.innerHTML = `
-    <div class="input-group">
-      <input type="text" class="form-control key-input" placeholder="Key">
-      <input type="text" class="form-control value-input" placeholder="Value">
-      <button class="btn btn-outline-secondary" type="button" onclick="removeKeyValuePair(this)">Remove</button>
-    </div>`;
+    <input type="text" class="form-control key-input" placeholder="Key">
+    <input type="text" class="form-control value-input" placeholder="Value">
+    <button class="btn btn-outline-danger" type="button">Remove</button>`;
+  keyValuePair.querySelector("button").addEventListener("click", () => {
+    keyValuePair.remove();
+  });
   keyValuePairsContainer.appendChild(keyValuePair);
 }
 
-function removeKeyValuePair(button) {
-  const keyValuePair = button.parentElement.parentElement;
-  keyValuePair.remove();
+function addHeaderPair() {
+  const headerPair = document.createElement("div");
+  headerPair.classList.add("input-group");
+  headerPair.innerHTML = `
+    <input type="text" class="form-control header-key-input" placeholder="Header Key">
+    <input type="text" class="form-control header-value-input" placeholder="Header Value">
+    <button class="btn btn-outline-danger" type="button">Remove</button>`;
+  headerPair.querySelector("button").addEventListener("click", () => {
+    headerPair.remove();
+  });
+  headerPairsContainer.appendChild(headerPair);
 }
