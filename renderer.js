@@ -68,15 +68,21 @@ sendRequestBtn.addEventListener("click", async (event) => {
 
   try {
     const response = await fetch(endpoint, options);
+    const status = response.status; // Capture the status code
     const responseData = await response.json();
-    displayResponse(responseData);
+    displayResponse(status, responseData);
   } catch (error) {
-    displayResponse({ error: "Error occurred while sending the request." });
+    displayResponse(null, {
+      error: "Error occurred while sending the request.",
+    });
   }
 });
 
-function displayResponse(responseData) {
+function displayResponse(status, responseData) {
   let responseHtml = "<h3>Response:</h3>";
+  if (status !== null) {
+    responseHtml += `<p>Status Code: ${status}</p>`;
+  }
   if (responseData.error) {
     responseHtml += `<p class="text-danger">${responseData.error}</p>`;
   } else {
